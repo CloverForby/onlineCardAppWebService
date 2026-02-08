@@ -1,6 +1,9 @@
 const express = require('express')
 const mysql = require('mysql2/promise')
+const cors = require('cors')
+
 require('dotenv').config();
+
 const port = 3000;
 
 const dbConfig = {
@@ -15,6 +18,11 @@ const dbConfig = {
 }
 
 const app = express();
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+  ]
+}))
 app.use(express.json())
 
 app.listen(port, ()=>{
