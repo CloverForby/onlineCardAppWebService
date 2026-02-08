@@ -32,7 +32,7 @@ app.get('/allcards', async(req, res)=>{
     }
 })
 
-app.post('/allcards', async(req, res)=>{
+app.post('/addcard', async(req, res)=>{
     const {card_name, card_pic} = req.body;
     try{
         let connection = await mysql.createConnection(dbConfig);
