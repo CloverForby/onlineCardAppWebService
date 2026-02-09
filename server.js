@@ -32,6 +32,27 @@ app.listen(port, ()=>{
     console.log('Server running on port', port);
 })
 
+function requireAuth(req, res, next) {
+
+    const header = req.headers.authorization; // "Bearer <token>"
+
+    if (!header) return res.status(401).json({ error: "Missing Authorization header" });
+        const [type, token] = header.split(" ");
+        if (type !== "Bearer" || !token) {
+            return res.status(401).json({ error: "Invalid Authorization format" });
+        }
+    try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.user = payload;
+        next();
+    } catch {
+    return res.status(401).json({ error: "Invalid/Expired token" });
+
+    }
+
+}
+
+
 app.get('/allcards', async(req, res)=>{
     try{
         let connection = await mysql.createConnection(dbConfig);
@@ -43,7 +64,7 @@ app.get('/allcards', async(req, res)=>{
     }
 })
 
-app.post('/addcard', async(req, res)=>{
+app.post('/addcard', requireAuth, async(req, res)=>{
     const {card_name, card_pic} = req.body;
     try{
         let connection = await mysql.createConnection(dbConfig);
@@ -55,7 +76,7 @@ app.post('/addcard', async(req, res)=>{
     }
 })
 
-app.delete('/deletecard/:id', async(req, res)=>{
+app.delete('/deletecard/:id', requireAuth, async(req, res)=>{
     const {id} = req.params;
     try{
         let connection = await mysql.createConnection(dbConfig);
@@ -67,7 +88,7 @@ app.delete('/deletecard/:id', async(req, res)=>{
     }
 })
 
-app.put('/updatecard/:id', async(req, res)=>{
+app.put('/updatecard/:id', requireAuth, async(req, res)=>{
     const {id} = req.params;
     const {card_name, card_pic} = req.body
     try{
